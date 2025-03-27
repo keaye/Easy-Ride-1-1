@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "894165136627",
+    "project_id": "keaye-faaed",
+    "storage_bucket": "keaye-faaed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:894165136627:android:9716cdf26311c3362e7386",
+        "android_client_info": {
+          "package_name": "com.ayo.Easy_Ride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "894165136627-bjlu4ftghcsntrcccjrmhft68okrenod.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ayo.Easy_Ride",
+            "certificate_hash": "b80186d1eb9c86a54104cf3054f34c52b7e558c6"
+          }
+        },
+        {
+          "client_id": "894165136627-cjpsqd3t1daia6sj2eoth0nnovg86khe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgc0rjJKXcE9gt9rxIEAXa82xDQjLvovw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "894165136627-cjpsqd3t1daia6sj2eoth0nnovg86khe.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "894165136627-e3b2o7eqlhisdketlu358i0qi4ve4k8j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.keaye.Easy-Ride"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
