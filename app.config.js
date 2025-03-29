@@ -65,7 +65,7 @@ module.exports = () => {
         policy: "appVersion",
       },
       updates: {
-        url: "https://u.expo.dev/45b68cbb-889e-4e76-bc96-f3c4a3c5d9d2",
+        url: "https://u.expo.dev/24cc1307-a019-4b6c-b610-29141d1c9ac6",
       },
     },
   };
