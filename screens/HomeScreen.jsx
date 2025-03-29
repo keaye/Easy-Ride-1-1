@@ -9,6 +9,7 @@ import {
   PanResponder,
   Modal,
   TextInput,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import MapView, { PROVIDER_GOOGLE, Circle, Marker } from "react-native-maps";
@@ -43,6 +44,7 @@ const HomeScreen = ({ navigation }) => {
   const [pickupSearchText, setPickupSearchText] = useState("");
   const [pickupSearchResults, setPickupSearchResults] = useState([]);
   const [currentLocationName, setCurrentLocationName] = useState("");
+  const [isInputFocused, setIsInputFocused] = useState(false); // Track input focus state
 
   const [user, setUser] = useState({
     name: "",
@@ -218,24 +220,6 @@ const HomeScreen = ({ navigation }) => {
     })();
   }, []);
 
-  // // Fetch recent locations from Firestore
-  // useEffect(() => {
-  //   const fetchRecentLocations = async () => {
-  //     try {
-  //       const querySnapshot = await getDocs(collection(db, "recentLocations"));
-  //       const locations = querySnapshot.docs.map((doc) => doc.data());
-  //       if (locations.length > 0) {
-  //         setRecentLocations(locations);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching recent locations:", error);
-  //       // If Firestore fetch fails, we'll use the mock data set in the location effect
-  //     }
-  //   };
-
-  //   fetchRecentLocations();
-  // }, []);
-
   useEffect(() => {
     if (currentUser) {
       const fetchUserData = async () => {
@@ -288,11 +272,11 @@ const HomeScreen = ({ navigation }) => {
 
   // Animation for panel swiping
   const panelHeight = useRef(new Animated.Value(0)).current;
-  const maxPanelHeight = 400; // Maximum height when fully expanded
+  const maxPanelHeight = Dimensions.get("window").height / 2; // Half screen height
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => !isInputFocused, // Disable interaction when input is focused
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dy < 0) {
           // Swiping up
@@ -312,7 +296,7 @@ const HomeScreen = ({ navigation }) => {
       },
       onPanResponderRelease: (evt, gestureState) => {
         if (gestureState.dy < -10) {
-          // Swipe up to open
+          // Swipe up to open halfway
           Animated.timing(panelHeight, {
             toValue: maxPanelHeight,
             duration: 300,
@@ -429,17 +413,85 @@ const HomeScreen = ({ navigation }) => {
 
     return (
       <View style={styles.rideOptionsContainer}>
+        <Text style={styles.rideOptionsTitle}>Choose your ride</Text>
         {rides.map((ride, index) => (
           <TouchableOpacity
             key={index}
-            style={styles.rideOption}
-            onPress={() => setSelectedRide(ride)}
+            style={[
+              styles.rideOption,
+              selectedRide?.type === ride.type
+                ? styles.selectedRideOption
+                : null,
+            ]}
+            onPress={() => {
+              // Navigate to the PaymentScreen with ride details
+              navigation.navigate("Payment", {
+                ride: ride,
+                pickup: selectedPickup,
+                destination: selectedDestination,
+              });
+            }}
           >
-            <Text style={styles.rideOptionText}>{ride.type}</Text>
-            <Text style={styles.rideOptionText}>{ride.capacity}</Text>
-            <Text style={styles.rideOptionText}>₦{ride.price}</Text>
+            <View style={styles.rideOptionLeft}>
+              <Text style={styles.rideOptionType}>{ride.type}</Text>
+              <Text style={styles.rideOptionCapacity}>2-3 people</Text>
+            </View>
+            <Text style={styles.rideOptionPrice}>₦{ride.price}</Text>
           </TouchableOpacity>
         ))}
+
+        {/* Additional rides based on the image */}
+        <TouchableOpacity
+          style={[
+            styles.rideOption,
+            selectedRide?.type === "Shuttle" ? styles.selectedRideOption : null,
+          ]}
+          onPress={() => {
+            const shuttleRide = {
+              type: "Shuttle",
+              capacity: "6+ people",
+              price: 2500,
+            };
+            navigation.navigate("Payment", {
+              ride: shuttleRide,
+              pickup: selectedPickup,
+              destination: selectedDestination,
+            });
+          }}
+        >
+          <View style={styles.rideOptionLeft}>
+            <Text style={styles.rideOptionType}>Shuttle</Text>
+            <Text style={styles.rideOptionCapacity}>6+ people</Text>
+          </View>
+          <Text style={styles.rideOptionPrice}>₦2500</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.rideOption,
+            selectedRide?.type === "Tricycle"
+              ? styles.selectedRideOption
+              : null,
+          ]}
+          onPress={() => {
+            const tricycleRide = {
+              type: "Tricycle",
+              capacity: "1-2 people",
+              price: 400,
+            };
+            navigation.navigate("Payment", {
+              ride: tricycleRide,
+              pickup: selectedPickup,
+              destination: selectedDestination,
+            });
+          }}
+        >
+          <View style={styles.rideOptionLeft}>
+            <Text style={styles.rideOptionType}>Tricycle</Text>
+            <Text style={styles.rideOptionCapacity}>1-2 people</Text>
+          </View>
+          <Text style={styles.rideOptionPrice}>₦400</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -506,19 +558,6 @@ const HomeScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </TouchableOpacity>
             </View>
-
-            {/* Become a driver banner */}
-            {/* <View style={styles.driverBanner}>
-              <View style={styles.driverBannerContent}>
-                <Text style={styles.driverBannerTitle}>Become a driver</Text>
-                <Text style={styles.driverBannerSubtext}>
-                  Earn money on your schedule
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.closeBannerButton}>
-                <Ionicons name="close" size={20} color="#555" />
-              </TouchableOpacity>
-            </View> */}
           </View>
         </View>
       </Modal>
@@ -635,6 +674,8 @@ const HomeScreen = ({ navigation }) => {
                   value={pickupSearchText}
                   onChangeText={handlePickupSearch}
                   placeholderTextColor="#777"
+                  onFocus={() => setIsInputFocused(true)} // Set focus state
+                  onBlur={() => setIsInputFocused(false)} // Reset focus state
                 />
                 <TouchableOpacity
                   style={styles.destinationMapButton}
@@ -654,6 +695,8 @@ const HomeScreen = ({ navigation }) => {
                   value={searchText}
                   onChangeText={handleDestinationSearch}
                   placeholderTextColor="#777"
+                  onFocus={() => setIsInputFocused(true)} // Set focus state
+                  onBlur={() => setIsInputFocused(false)} // Reset focus state
                 />
                 <TouchableOpacity
                   style={styles.destinationMapButton}
@@ -664,99 +707,6 @@ const HomeScreen = ({ navigation }) => {
               </View>
             </View>
           </View>
-
-          {(pickupSearchResults.length > 0 || searchResults.length > 0) && (
-            <ScrollView style={styles.searchResultsContainer}>
-              {pickupSearchText && pickupSearchResults.length > 0
-                ? pickupSearchResults.map((result, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.searchResultItem}
-                      onPress={() => {
-                        handleLocationSelect(result, "pickup");
-                      }}
-                    >
-                      <Ionicons
-                        name={result.icon || "location"}
-                        size={20}
-                        color="#FF8C00"
-                      />
-                      <View style={styles.searchResultTextContainer}>
-                        <Text style={styles.searchResultName}>
-                          {result.name}
-                        </Text>
-                        <Text style={styles.searchResultDescription}>
-                          {result.description}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))
-                : searchResults.map((result, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.searchResultItem}
-                      onPress={() => {
-                        handleLocationSelect(result, "destination");
-                      }}
-                    >
-                      <Ionicons
-                        name={result.icon || "location"}
-                        size={20}
-                        color="#FF8C00"
-                      />
-                      <View style={styles.searchResultTextContainer}>
-                        <Text style={styles.searchResultName}>
-                          {result.name}
-                        </Text>
-                        <Text style={styles.searchResultDescription}>
-                          {result.description}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-            </ScrollView>
-          )}
-
-          {multipleDestinations.length > 0 && (
-            <View style={styles.multipleDestinationsContainer}>
-              {multipleDestinations.map((dest, index) => (
-                <View key={index} style={styles.routePoint}>
-                  <View style={styles.routePointDot}>
-                    <View
-                      style={[styles.orangeDot, { backgroundColor: "#4B0082" }]}
-                    />
-                  </View>
-                  <Text style={styles.routePointText}>{dest.name}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          <View style={styles.recentRoutesContainer}>
-            {recentLocations.map((location, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.recentRouteItem}
-                onPress={() => handleLocationSelect(location, "destination")}
-              >
-                <View style={styles.recentRouteIcon}>
-                  <Ionicons
-                    name={location.icon || "location"}
-                    size={20}
-                    color="#777"
-                  />
-                </View>
-                <View style={styles.recentRouteDetails}>
-                  <Text style={styles.recentRouteName}>{location.name}</Text>
-                  <Text style={styles.recentRouteDescription}>
-                    {location.description}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <View style={styles.indicatorBar} />
 
           {/* Render ride options */}
           {renderRideOptions()}
@@ -1012,6 +962,110 @@ const styles = StyleSheet.create({
   rideSelectionContent: {
     padding: 5,
     height: "100%",
+  },
+  // Updated ride selection styles
+  rideOptionsContainer: {
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    marginTop: 10,
+    width: "100%",
+  },
+  rideOptionsTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  rideOption: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  selectedRideOption: {
+    backgroundColor: "#fff4ee",
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+    borderLeftWidth: 3,
+    borderLeftColor: "#FF8C00",
+  },
+  rideOptionLeft: {
+    flexDirection: "column",
+  },
+  rideOptionType: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  rideOptionCapacity: {
+    fontSize: 14,
+    color: "#777",
+    marginTop: 2,
+  },
+  rideOptionPrice: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+
+  // Payment options styles
+  paymentOptionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 16,
+  },
+  cashOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    padding: 10,
+    borderRadius: 20,
+  },
+  paymentOptionText: {
+    marginRight: 5,
+    fontSize: 14,
+  },
+  promoCodeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    padding: 10,
+    borderRadius: 20,
+  },
+  promoCodeText: {
+    marginLeft: 5,
+    color: "#888",
+    fontSize: 14,
+  },
+
+  // Book button styles
+  bookButton: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 30,
+    padding: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  bookButtonDisabled: {
+    opacity: 0.7,
+  },
+  bookButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  bookButtonPrice: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  bookButtonPriceText: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginRight: 5,
   },
   dragIndicator: {
     width: 50,

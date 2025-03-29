@@ -19,7 +19,9 @@ module.exports = () => {
       orientation: "portrait",
       icon: "./assets/icon.png",
       userInterfaceStyle: "light",
-      newArchEnabled: false, // Disable new architecture globally
+      experimental: {
+        enableNewArchitecture: false, // Ensure new architecture is disabled for iOS
+      },
       "expo-splash-screen": {
         backgroundColor: "#232323",
         image: "./assets/splash-icon.png",
