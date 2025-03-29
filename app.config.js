@@ -11,7 +11,7 @@ module.exports = () => {
       platforms: ["ios", "android", "web"],
       extra: {
         eas: {
-          projectId: "45b68cbb-889e-4e76-bc96-f3c4a3c5d9d2",
+          projectId: "24cc1307-a019-4b6c-b610-29141d1c9ac6",
         },
       },
       scheme: "easyride",
