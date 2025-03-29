@@ -4,14 +4,14 @@ module.exports = () => {
   return {
     expo: {
       name: "Easy-Ride",
-      slug: "eazyride",
+      slug: "ryde",
       owner: "ayoee",
       description:
         "A simple E-Hailing App, that helps users commute to different destinations",
       platforms: ["ios", "android", "web"],
       extra: {
         eas: {
-          projectId: "24cc1307-a019-4b6c-b610-29141d1c9ac6",
+          projectId: "",
         },
       },
       scheme: "easyride",
@@ -65,7 +65,7 @@ module.exports = () => {
         policy: "appVersion",
       },
       updates: {
-        url: "https://u.expo.dev/24cc1307-a019-4b6c-b610-29141d1c9ac6",
+        url: "",
       },
     },
   };
