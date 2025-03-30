@@ -11,7 +11,7 @@ module.exports = () => {
       platforms: ["ios", "android", "web"],
       extra: {
         eas: {
-          projectId: "",
+          projectId: "9fba4f57-9159-4f78-853b-7fa485a14495",
         },
       },
       scheme: "easyride",
@@ -65,7 +65,7 @@ module.exports = () => {
         policy: "appVersion",
       },
       updates: {
-        url: "",
+        url: "https://u.expo.dev/9fba4f57-9159-4f78-853b-7fa485a14495",
       },
     },
   };
